@@ -1,17 +1,23 @@
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.Timer;
+
+
 
 public class PomoPanel {
 
@@ -23,18 +29,44 @@ public class PomoPanel {
     private long timeTrack;
     private Timer time;
     private Date date;
+    private Font digitalFont;
+    private Font digitalFontBold;
+    private String formattedTime;
+
+
+
+
+
 
     public PomoPanel() {
+        //use custom font for timer text
+        InputStream is = getClass().getResourceAsStream("/font/digital-7.ttf");
+        try {
+            digitalFont = Font.createFont(Font.TRUETYPE_FONT, is);
+
+            digitalFontBold = digitalFont.deriveFont(Font.PLAIN, 50f);
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         PomoPanelDesign();
     }
 
     public void PomoPanelDesign() {
         JPanel timePanel = new JPanel();
+        timePanel.setBackground(new Color(141, 153, 174));
         timePanel.setLayout(new BorderLayout());
         timeTrack = timeSet;
         
         SimpleDateFormat df = new SimpleDateFormat("mm:ss");
-        JLabel timerLabel = new JLabel(df.format(new Date(timeTrack)));
+        date = new Date(timeTrack);
+        formattedTime = df.format(date);
+
+        JLabel timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
+        timerLabel.setText(formattedTime);
+        timerLabel.setFont(digitalFontBold);
+        timerLabel.setForeground(new Color(237, 242, 244));
+        
         time = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -44,25 +76,26 @@ public class PomoPanel {
             
             date = new Date(timeTrack);
 
-            String formattedTime = df.format(date);
+            formattedTime = df.format(date);
+            
+            timerLabel.setText(formattedTime);
+            timerLabel.setFont(digitalFontBold);
+            timerLabel.setForeground(new Color(237, 242, 244));
             
 
-            timerLabel.setText(formattedTime);
             if(timeTrack == 0) {
                 time.stop();
             }
             }
         });
-        time.start();
-
-
-
 
         bar = new JProgressBar();
         bar.setValue(0);
         bar.setStringPainted(false);
+        timerLabel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         timePanel.add(timerLabel, BorderLayout.NORTH);
         timePanel.add(bar, BorderLayout.SOUTH);
+        timePanel.add(timerLabel, BorderLayout.NORTH);
 
         pomoPanel = new JPanel(new BorderLayout());
         pomoPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
@@ -71,6 +104,7 @@ public class PomoPanel {
         JButton jb = new JButton("Button1");
         pomoPanel.add(timePanel, BorderLayout.NORTH);
         pomoPanel.add(jb, BorderLayout.CENTER);
+        time.start();
     }
 
     public JPanel getPomoPanel() {
@@ -85,8 +119,6 @@ public class PomoPanel {
     }
 
     public static void main(String[] args) {
-        
         new PomoFrame();
-
     }
 }
