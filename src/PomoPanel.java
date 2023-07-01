@@ -24,15 +24,13 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 
-
-
 public class PomoPanel {
 
     private JPanel pomoPanel;
     private JLabel lblTimer;
     private JProgressBar bar;
     private CountdownTimer count;
-    private long timeSet = 300 * 1000;
+    private long timeSet = 5 * 1000;
     private long timeTrack;
     private long barFull;
     private long barIncrement;
@@ -41,21 +39,16 @@ public class PomoPanel {
     private Font digitalFont;
     private Font digitalFontBold;
     private String formattedTime;
-
-
-
-
-
+    private int shortBreakCount = 0;
 
     public PomoPanel() {
-        //use custom font for timer text
+        // use custom font for timer text
         InputStream is = getClass().getResourceAsStream("font/digital-7.ttf");
         try {
             digitalFont = Font.createFont(Font.TRUETYPE_FONT, is);
 
-            digitalFontBold = digitalFont.deriveFont(Font.PLAIN, 50f);
-        } 
-        catch (Exception e) {
+            digitalFontBold = digitalFont.deriveFont(Font.PLAIN, 40f);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         PomoPanelDesign();
@@ -66,7 +59,7 @@ public class PomoPanel {
         timePanel.setBackground(new Color(251, 246, 239));
         timePanel.setLayout(new BorderLayout());
         timeTrack = timeSet;
-        
+
         SimpleDateFormat df = new SimpleDateFormat("mm:ss");
         date = new Date(timeTrack);
         formattedTime = df.format(date);
@@ -79,33 +72,39 @@ public class PomoPanel {
         bar = new JProgressBar();
         bar.setForeground(new Color(221, 190, 169));
         bar.setStringPainted(false);
-        bar.setMaximum((int)timeSet);
-        barIncrement = 100/(timeTrack/1000);
+        bar.setMaximum((int) timeSet);
+        barIncrement = 100 / (timeTrack / 1000);
         barFull = timeSet;
         bar.setValue((int) timeSet);
+
+
+       //breakPanel to indicate short breaks
+        JPanel breakPanel = new JPanel(new FlowLayout());
+
         
         time = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-            
-            System.out.println(timeTrack / 1000);
-            System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
-            timeTrack -= 1000; // decrements the time by 1 second
-            
-            date = new Date(timeTrack);
-            
-            formattedTime = df.format(date);
-            
-            timerLabel.setText(formattedTime);
-            timerLabel.setFont(digitalFontBold);
-            timerLabel.setForeground(new Color(234, 215, 195));
 
-            updateProgressBar();
-            
+                System.out.println(timeTrack / 1000);
+                System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
+                timeTrack -= 1000; // decrements the time by 1 second
 
-            if(timeTrack == 0) {
-                time.stop();
-            }
+                date = new Date(timeTrack);
+
+                formattedTime = df.format(date);
+
+                timerLabel.setText(formattedTime);
+                timerLabel.setFont(digitalFontBold);
+                timerLabel.setForeground(new Color(234, 215, 195));
+
+                updateProgressBar();
+
+                if (timeTrack == 0) {
+                    time.stop();
+                    shortBreakCount++;
+                    addImgBreak(breakPanel, 20);
+                }
             }
         });
         timerLabel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
@@ -117,7 +116,10 @@ public class PomoPanel {
         pomoPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         pomoPanel.setLayout(new BorderLayout());
 
-        //buttonPanel for button interaction
+
+
+
+        // buttonPanel for button interaction
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setBackground(new Color(251, 246, 239));
         pomoPanel.setBackground(new Color(251, 246, 239));
@@ -140,11 +142,10 @@ public class PomoPanel {
         start.setBackground(new Color(234, 215, 195));
         pause.setBackground(new Color(234, 215, 195));
         restart.setBackground(new Color(234, 215, 195));
-        
 
-
-        pomoPanel.add(timePanel, BorderLayout.NORTH);
-        pomoPanel.add(buttonPanel, BorderLayout.CENTER);
+        pomoPanel.add(breakPanel, BorderLayout.NORTH);
+        pomoPanel.add(timePanel, BorderLayout.CENTER);
+        pomoPanel.add(buttonPanel, BorderLayout.SOUTH);
         time.start();
     }
 
@@ -155,25 +156,60 @@ public class PomoPanel {
     public long currentTime() {
         return count.getTimeTrack();
     }
+
     public void setTimeSet(long ts) {
         timeSet = ts;
     }
 
-    public void addImg(JButton button, String path, int size){
+    public void addImg(JButton button, String path, int size) {
         try {
-        BufferedImage img = null;
-        img = ImageIO.read(new File(path));
-        Image img1 = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        ImageIcon format = new ImageIcon(img1);
-        button.setIcon(format);
+            BufferedImage img = null;
+            img = ImageIO.read(new File(path));
+            Image img1 = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+            ImageIcon format = new ImageIcon(img1);
+            button.setIcon(format);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void updateProgressBar(){
-        bar.setValue(((int)barFull - 1000));
+    public void addImgBreak(JPanel panel, int size){
+        StringBuilder sb = new StringBuilder("images/start.png");
+        if(shortBreakCount == 1){
+            sb.setLength(0);
+            sb = new StringBuilder("images/start.png");
+        }
+        else if (shortBreakCount == 2){
+            sb.setLength(0);
+            sb = new StringBuilder("images/start.png");
+        }
+        else if (shortBreakCount == 3){
+            sb.setLength(0);
+            sb = new StringBuilder("images/d.png");
+        }
+        else {
+            setShortBreakCount(0);
+            panel.removeAll();
+        }
+
+
+        try {
+            BufferedImage img = ImageIO.read(new File(sb.toString()));
+            Image img1 = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            JLabel bocchi = new JLabel(new ImageIcon(img1));
+            panel.add(bocchi);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateProgressBar() {
+        bar.setValue(((int) barFull - 1000));
         barFull = barFull - 1000;
+    }
+
+    public void setShortBreakCount(int count){
+        shortBreakCount = count;
     }
 
     public static void main(String[] args) {
