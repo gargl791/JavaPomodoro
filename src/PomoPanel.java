@@ -31,9 +31,9 @@ public class PomoPanel {
     private JButton start, rest, restart;
     private JProgressBar bar;
     private CountdownTimer count;
-    private long timeSet = 5 * 1000;
-    private long shortBreakTime = 4 * 1000;
-    private long longBreakTime = 7 * 1000;
+    private long timeSet = 900 * 1000;
+    private long shortBreakTime = 350 * 1000;
+    private long longBreakTime = 400 * 1000;
     private long timeTrack;
     private long barFull;
     private long barIncrement;
@@ -107,7 +107,7 @@ public class PomoPanel {
                     time.stop();
                     setBreakFlag(true);
                     
-                    addImgBreak(breakPanel, 20);
+                    addImgBreak(breakPanel, 15);
                     shortBreakCount++;
                     setButtonVisibility(breakPanel, rest, true);
                     setButtonVisibility(breakPanel, restart, false);
@@ -344,7 +344,7 @@ public class PomoPanel {
             bar.setString("LONG BREAK");
         }
         else if (!breakFlag){
-            bar.setString("WORKING");
+            bar.setString("FOCUS");
         }
         else if(breakFlag){
             bar.setString("SHORT BREAK");
