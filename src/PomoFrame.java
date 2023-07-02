@@ -21,7 +21,7 @@ public class PomoFrame {
         PomoMenu pomoMenu = new PomoMenu();
         
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(220, 190));
+        frame.setPreferredSize(new Dimension(220, 200));
         frame.setTitle("Pomodoro Timer");
         frame.getContentPane().add(pomoPanel.getPomoPanel());
         frame.setJMenuBar(pomoMenu.getPomoMenu());

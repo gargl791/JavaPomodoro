@@ -28,18 +28,22 @@ public class PomoPanel {
 
     private JPanel pomoPanel;
     private JLabel lblTimer;
+    private JButton start, rest, restart;
     private JProgressBar bar;
     private CountdownTimer count;
-    private long timeSet = 5 * 1000;
+    private long timeSet = 2 * 1000;
+    private long shortBreakTime = 1 * 1000;
+    private long longBreakTime = 5 * 1000;
     private long timeTrack;
     private long barFull;
     private long barIncrement;
-    private Timer time;
+    private Timer time, breakTime;
     private Date date;
     private Font digitalFont;
     private Font digitalFontBold;
     private String formattedTime;
     private int shortBreakCount = 0;
+    private boolean breakFlag = false;
 
     public PomoPanel() {
         // use custom font for timer text
@@ -47,7 +51,7 @@ public class PomoPanel {
         try {
             digitalFont = Font.createFont(Font.TRUETYPE_FONT, is);
 
-            digitalFontBold = digitalFont.deriveFont(Font.PLAIN, 40f);
+            digitalFontBold = digitalFont.deriveFont(Font.PLAIN, 45f);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,17 +75,16 @@ public class PomoPanel {
 
         bar = new JProgressBar();
         bar.setForeground(new Color(221, 190, 169));
-        bar.setStringPainted(false);
+        bar.setStringPainted(true);
+        bar.setString("START");
         bar.setMaximum((int) timeSet);
         barIncrement = 100 / (timeTrack / 1000);
         barFull = timeSet;
         bar.setValue((int) timeSet);
 
-
-       //breakPanel to indicate short breaks
+        // breakPanel to indicate short breaks
         JPanel breakPanel = new JPanel(new FlowLayout());
 
-        
         time = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -99,15 +102,50 @@ public class PomoPanel {
                 timerLabel.setForeground(new Color(234, 215, 195));
 
                 updateProgressBar();
-
-                if (timeTrack == 0) {
+                if(timeTrack == 0){
                     time.stop();
-                    shortBreakCount++;
+                    setBreakFlag(true);
+                    
                     addImgBreak(breakPanel, 20);
+                    shortBreakCount++;
+                    setButtonVisibility(breakPanel, rest, true);
+                    setButtonVisibility(breakPanel, restart, false);
+                }
+
+            }
+        });
+
+        breakTime = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                System.out.println("Break time");
+                System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
+                timeTrack -= 1000; // decrements the time by 1 second
+
+                date = new Date(timeTrack);
+
+                formattedTime = df.format(date);
+
+                timerLabel.setText(formattedTime);
+                timerLabel.setFont(digitalFontBold);
+                timerLabel.setForeground(new Color(234, 215, 195));
+
+                updateProgressBar();
+                if(breakFlag && shortBreakCount == 4){
+                    addImgBreak(breakPanel, 20);
+                }
+                if(timeTrack == 0){
+                    breakTime.stop();
+                    setBreakFlag(false);
+                    setButtonVisibility(breakPanel, rest, false);
+                    setButtonVisibility(breakPanel, restart, false);
+                    setButtonVisibility(breakPanel, start, true);
+                    System.out.println("COUNT: " + shortBreakCount);
+                    
                 }
             }
         });
-        timerLabel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        timerLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         timePanel.add(timerLabel, BorderLayout.NORTH);
         timePanel.add(bar, BorderLayout.SOUTH);
         timePanel.add(timerLabel, BorderLayout.NORTH);
@@ -116,37 +154,105 @@ public class PomoPanel {
         pomoPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         pomoPanel.setLayout(new BorderLayout());
 
-
-
-
         // buttonPanel for button interaction
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setBackground(new Color(251, 246, 239));
         pomoPanel.setBackground(new Color(251, 246, 239));
 
-        JButton start = new JButton();
-        JButton pause = new JButton();
-        JButton restart = new JButton();
+        start = new JButton();
+        /* JButton pause = new JButton(); */
+        restart = new JButton();
+        rest = new JButton();
+
+        // start button
+        start.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                System.out.println("Start button pressed");
+                timeTrack = timeSet;
+                if (!time.isRunning()) {
+                    time.start();
+                    setBreakFlag(true);
+                setButtonVisibility(buttonPanel, restart, true);
+                setButtonVisibility(buttonPanel, start, false);
+                }
+            }
+        });
+        // break/rest button
+        setButtonVisibility(buttonPanel, rest, false);
+        rest.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                System.out.println("Rest button pressed");
+                if(breakFlag && shortBreakCount == 4) {
+                    timeTrack = longBreakTime;
+                }
+                else if (breakFlag && shortBreakCount < 4) {
+                    timeTrack = shortBreakTime;
+                }
+                breakTime.start();
+                setButtonVisibility(buttonPanel, rest, false);
+            }
+        });
+
+        /*
+         * //pause button
+         * setButtonVisibility(buttonPanel, pause, false);
+         * pause.addActionListener(new ActionListener() {
+         * 
+         * @Override
+         * public void actionPerformed(java.awt.event.ActionEvent e) {
+         * System.out.println("Pause button pressed");
+         * if(time.isRunning()){
+         * time.stop();
+         * }
+         * }
+         * });
+         */
+
+        // restart button
+        setButtonVisibility(buttonPanel, restart, false);
+        restart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                System.out.println("Restart button pressed");
+                time.stop();
+                timeTrack = timeSet;
+                barFull = timeSet;
+                bar.setValue((int) timeSet);
+                date = new Date(timeTrack);
+                formattedTime = df.format(date);
+                timerLabel.setText(formattedTime);
+                timerLabel.setFont(digitalFontBold);
+                timerLabel.setForeground(new Color(234, 215, 195));
+                bar.setString("RESTARTED");
+                setButtonVisibility(buttonPanel, start, true);
+                setButtonVisibility(buttonPanel, restart, false);
+            }
+        });
+
         int size = 30;
         restart.setPreferredSize(new Dimension(size, size));
-        pause.setPreferredSize(new Dimension(size, size));
+        // pause.setPreferredSize(new Dimension(size, size));
         start.setPreferredSize(new Dimension(size, size));
         addImg(start, "images/start.png", size);
-        addImg(pause, "images/pause.png", size);
+        // addImg(pause, "images/pause.png", size);
         addImg(restart, "images/restart.png", size);
+        addImg(rest, "images/rest.png", size);
 
         buttonPanel.add(start);
-        buttonPanel.add(pause);
+        // buttonPanel.add(pause);
         buttonPanel.add(restart);
+        buttonPanel.add(rest);
 
         start.setBackground(new Color(234, 215, 195));
-        pause.setBackground(new Color(234, 215, 195));
+        // pause.setBackground(new Color(234, 215, 195));
         restart.setBackground(new Color(234, 215, 195));
+        rest.setBackground(new Color(234, 215, 195));
 
         pomoPanel.add(breakPanel, BorderLayout.NORTH);
         pomoPanel.add(timePanel, BorderLayout.CENTER);
         pomoPanel.add(buttonPanel, BorderLayout.SOUTH);
-        time.start();
     }
 
     public JPanel getPomoPanel() {
@@ -173,29 +279,41 @@ public class PomoPanel {
         }
     }
 
-    public void addImgBreak(JPanel panel, int size){
+    public void addImgBreak(JPanel panel, int size) {
         StringBuilder sb = new StringBuilder("images/start.png");
-        if(shortBreakCount == 1){
-            sb.setLength(0);
-            sb = new StringBuilder("images/start.png");
+        switch (shortBreakCount) {
+            case 0:
+                sb.setLength(0);
+                sb = new StringBuilder("images/start.png");
+                break;
+            case 1:
+                sb.setLength(0);
+                sb = new StringBuilder("images/start.png");
+                break;
+            case 2:
+                sb.setLength(0);
+                sb = new StringBuilder("images/start.png");
+                break;
+            case 3:
+                sb.setLength(0);
+                sb = new StringBuilder("images/start.png");
+                break;
+            case 4:
+                setShortBreakCount(0);
+                panel.removeAll();
+                panel.revalidate();
+                panel.repaint();
+                return;
+            default:
+                setShortBreakCount(0);
+                panel.removeAll();
+                panel.revalidate();
+                panel.repaint();
+                return;
         }
-        else if (shortBreakCount == 2){
-            sb.setLength(0);
-            sb = new StringBuilder("images/start.png");
-        }
-        else if (shortBreakCount == 3){
-            sb.setLength(0);
-            sb = new StringBuilder("images/d.png");
-        }
-        else {
-            setShortBreakCount(0);
-            panel.removeAll();
-        }
-
-
         try {
             BufferedImage img = ImageIO.read(new File(sb.toString()));
-            Image img1 = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            Image img1 = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
             JLabel bocchi = new JLabel(new ImageIcon(img1));
             panel.add(bocchi);
         } catch (Exception e) {
@@ -206,10 +324,31 @@ public class PomoPanel {
     public void updateProgressBar() {
         bar.setValue(((int) barFull - 1000));
         barFull = barFull - 1000;
+        if(breakFlag && shortBreakCount == 4){
+            bar.setString("LONG BREAK");
+        }
+        else if(breakFlag) {
+            bar.setString("SHORT BREAK");
+        }
+        else {
+            bar.setString("FOCUS");
+        }
+
     }
 
-    public void setShortBreakCount(int count){
-        shortBreakCount = count;
+    public void setButtonVisibility(JPanel panel, JButton b, boolean flag) {
+        b.setEnabled(flag);
+        b.setVisible(flag);
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    public void setShortBreakCount(int count) {
+        this.shortBreakCount = count;
+    }
+
+    public void setBreakFlag(boolean flag) {
+        this.breakFlag = flag;
     }
 
     public static void main(String[] args) {
