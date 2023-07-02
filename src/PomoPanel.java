@@ -241,6 +241,7 @@ public class PomoPanel {
         restart.setPreferredSize(new Dimension(size, size));
         // pause.setPreferredSize(new Dimension(size, size));
         start.setPreferredSize(new Dimension(size, size));
+        rest.setPreferredSize(new Dimension(size, size));
         addImg(start, "images/start.png", size);
         // addImg(pause, "images/pause.png", size);
         addImg(restart, "images/restart.png", size);
@@ -286,23 +287,23 @@ public class PomoPanel {
     }
 
     public void addImgBreak(JPanel panel, int size) {
-        StringBuilder sb = new StringBuilder("images/start.png");
+        StringBuilder sb = new StringBuilder();
         switch (shortBreakCount) {
             case 0:
                 sb.setLength(0);
-                sb = new StringBuilder("images/start.png");
+                sb = new StringBuilder("images/a.gif");
                 break;
             case 1:
                 sb.setLength(0);
-                sb = new StringBuilder("images/start.png");
+                sb = new StringBuilder("images/b.png");
                 break;
             case 2:
                 sb.setLength(0);
-                sb = new StringBuilder("images/start.png");
+                sb = new StringBuilder("images/c.png");
                 break;
             case 3:
                 sb.setLength(0);
-                sb = new StringBuilder("images/start.png");
+                sb = new StringBuilder("images/d.png");
                 break;
             case 4:
                 setShortBreakCount(0);
