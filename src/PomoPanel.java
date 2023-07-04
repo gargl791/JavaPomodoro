@@ -26,15 +26,15 @@ import javax.swing.Timer;
 
 public class PomoPanel {
 
+    private SimpleDateFormat df = new SimpleDateFormat("mm:ss");
     private JPanel pomoPanel;
-    private JLabel lblTimer;
+    private JLabel timerLabel;
     private JButton start, rest, restart;
     private JProgressBar bar;
-    private CountdownTimer count;
-    private long timeSet = 60 * 1000;
-    private long shortBreakTime = 30 * 1000;
-    private long longBreakTime = 400 * 1000;
-    private long timeTrack;
+    private static long timeSetMs = 60 * 1000;
+    private static long shortBreakTimeMs = 60 * 1000;
+    private static long longBreakTimeMs = 60 * 1000;
+    private static long timeTrack;
     private long barFull;
     private long barIncrement;
     private Timer time, breakTime;
@@ -62,13 +62,12 @@ public class PomoPanel {
         JPanel timePanel = new JPanel();
         timePanel.setBackground(new Color(251, 246, 239));
         timePanel.setLayout(new BorderLayout());
-        timeTrack = timeSet;
+        timeTrack = timeSetMs;
 
-        SimpleDateFormat df = new SimpleDateFormat("mm:ss");
         date = new Date(timeTrack);
         formattedTime = df.format(date);
 
-        JLabel timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
+        timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
         timerLabel.setText(formattedTime);
         timerLabel.setFont(digitalFontBold);
         timerLabel.setForeground(new Color(234, 215, 195));
@@ -77,10 +76,10 @@ public class PomoPanel {
         bar.setForeground(new Color(221, 190, 169));
         bar.setStringPainted(true);
         bar.setString("START");
-        bar.setMaximum((int) timeSet);
+        bar.setMaximum((int) timeSetMs);
         barIncrement = 100 / (timeTrack / 1000);
-        barFull = timeSet;
-        bar.setValue((int) timeSet);
+        barFull = timeSetMs;
+        bar.setValue((int) timeSetMs);
 
         // breakPanel to indicate short breaks
         JPanel breakPanel = new JPanel(new FlowLayout());
@@ -93,25 +92,20 @@ public class PomoPanel {
                 System.out.println(timeTrack / 1000);
                 System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
                 timeTrack -= 1000; // decrements the time by 1 second
+                formatTime();
 
-                date = new Date(timeTrack);
-
-                formattedTime = df.format(date);
-
-                timerLabel.setText(formattedTime);
-                timerLabel.setFont(digitalFontBold);
-                timerLabel.setForeground(new Color(234, 215, 195));
 
                 updateProgressBar();
-                if(timeTrack == 0){
+                if (timeTrack <= 0) {
                     time.stop();
                     setBreakFlag(true);
-                    
+
                     addImgBreak(breakPanel, 15);
                     shortBreakCount++;
                     setButtonVisibility(breakPanel, rest, true);
                     setButtonVisibility(breakPanel, restart, false);
-                    timerLabel.setForeground(new Color(242, 122, 125));
+                    updateTime();
+                    formatTime();
                 }
 
             }
@@ -124,19 +118,13 @@ public class PomoPanel {
                 System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
                 timeTrack -= 1000; // decrements the time by 1 second
 
-                date = new Date(timeTrack);
-
-                formattedTime = df.format(date);
-
-                timerLabel.setText(formattedTime);
-                timerLabel.setFont(digitalFontBold);
-                timerLabel.setForeground(new Color(242, 122, 125));
+                formatTime();
 
                 updateProgressBar();
-                if(breakFlag && shortBreakCount == 4){
+                if (breakFlag && shortBreakCount == 4) {
                     addImgBreak(breakPanel, 20);
                 }
-                if(timeTrack == 0){
+                if (timeTrack <= 0) {
                     breakTime.stop();
                     setBreakFlag(false);
                     setButtonVisibility(breakPanel, rest, false);
@@ -144,6 +132,8 @@ public class PomoPanel {
                     setButtonVisibility(breakPanel, start, true);
                     timerLabel.setForeground(new Color(234, 215, 195));
                     System.out.println("COUNT: " + shortBreakCount);
+                    updateTime();
+                    formatTime();
                 }
             }
         });
@@ -171,7 +161,7 @@ public class PomoPanel {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 System.out.println("Start button pressed");
-                timeTrack = timeSet;
+                timeTrack = timeSetMs;
                 if (!time.isRunning()) {
                     barFull = timeTrack;
                     bar.setMaximum((int) barFull);
@@ -188,13 +178,7 @@ public class PomoPanel {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 System.out.println("Rest button pressed");
-                if(breakFlag && shortBreakCount == 4) {
-                    timeTrack = longBreakTime;
-                    System.out.println("LONG BREAK");
-                }
-                else if (breakFlag && shortBreakCount < 4) {
-                    timeTrack = shortBreakTime;
-                }
+                updateTime();
                 barFull = timeTrack;
                 bar.setMaximum((int) barFull);
                 bar.setValue((int) barFull);
@@ -225,14 +209,12 @@ public class PomoPanel {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 System.out.println("Restart button pressed");
                 time.stop();
-                timeTrack = timeSet;
-                barFull = timeSet;
-                bar.setValue((int) timeSet);
+                timeTrack = timeSetMs;
+                barFull = timeSetMs;
+                bar.setMaximum((int) barFull);
+                bar.setValue((int) barFull);
                 date = new Date(timeTrack);
-                formattedTime = df.format(date);
-                timerLabel.setText(formattedTime);
-                timerLabel.setFont(digitalFontBold);
-                timerLabel.setForeground(new Color(234, 215, 195));
+                formatTime();
                 bar.setString("RESTARTED");
                 setButtonVisibility(buttonPanel, start, true);
                 setButtonVisibility(buttonPanel, restart, false);
@@ -268,12 +250,8 @@ public class PomoPanel {
         return pomoPanel;
     }
 
-    public long currentTime() {
-        return count.getTimeTrack();
-    }
-
     public void setTimeSet(long ts) {
-        timeSet = ts;
+        timeSetMs = ts;
     }
 
     public void addImg(JButton button, String path, int size) {
@@ -328,21 +306,19 @@ public class PomoPanel {
         bar.setValue(((int) barFull - 1000));
         barFull = barFull - 1000;
 
-        if(barFull == 0) {
+        if (barFull == 0) {
             bar.setString("FINISHED");
             return;
         }
-        if(barFull % 2000 == 1000){
+        if (barFull % 2000 == 1000) {
             bar.setString("");
             return;
         }
-        if(breakFlag && shortBreakCount == 4){
+        if (breakFlag && shortBreakCount == 4) {
             bar.setString("LONG BREAK");
-        }
-        else if (!breakFlag){
+        } else if (!breakFlag) {
             bar.setString("FOCUS");
-        }
-        else if(breakFlag){
+        } else if (breakFlag) {
             bar.setString("SHORT BREAK");
         }
     }
@@ -354,12 +330,79 @@ public class PomoPanel {
         panel.repaint();
     }
 
+    public void formatTime() {
+        date = new Date(timeTrack);
+        formattedTime = df.format(date);
+        timerLabel.setText(formattedTime);
+        timerLabel.setFont(digitalFontBold);
+        if(breakFlag) {
+            timerLabel.setForeground(new Color(242, 122, 125));
+        }
+        else {
+            timerLabel.setForeground(new Color(234, 215, 195));
+        }
+    }
+
+    public void updateTime() {
+                if (breakFlag && shortBreakCount == 4) {
+                    timeTrack = longBreakTimeMs;
+                } 
+                else if (breakFlag && shortBreakCount < 4) {
+                    timeTrack = shortBreakTimeMs;
+                }
+                else {
+                    timeTrack = timeSetMs;
+                }
+    }
+
     public void setShortBreakCount(int count) {
         this.shortBreakCount = count;
     }
 
     public void setBreakFlag(boolean flag) {
         this.breakFlag = flag;
+    }
+
+    public void setPomoTime(long t) {
+        while (time.isRunning()) {
+            System.out.println("wait pomo");
+        }
+        time.stop();
+        timeSetMs = t;
+
+                formatTime();
+    }
+
+    public void setShortBreakTime(long t) {
+        while (breakTime.isRunning()) {
+            System.out.println("wait short break");
+        }
+        time.stop();
+        shortBreakTimeMs = t;
+
+                formatTime();
+    }
+
+    public void setLongBreakTime(long t) {
+        while (breakTime.isRunning()) {
+            System.out.println("wait long break");
+        }
+        time.stop();
+        longBreakTimeMs = t;
+
+                formatTime();
+    }
+
+    public long getPomoTime() {
+        return timeSetMs;
+    }
+
+    public long getShortBreakTime() {
+        return shortBreakTimeMs;
+    }
+
+    public long getLongBreakTime() {
+        return longBreakTimeMs;
     }
 
     public static void main(String[] args) {

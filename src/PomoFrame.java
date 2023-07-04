@@ -1,4 +1,3 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -8,15 +7,13 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.MenuListener;
 
 
 public class PomoFrame {
     private JFrame pomoFrame;
     private JMenu settings, help;
     private JMenuBar menuBar;
+    private static PomoPanel pomoPanel;
 
     public PomoFrame() {
         PomoDesign();
@@ -27,15 +24,22 @@ public class PomoFrame {
         JPanel contentPane = new JPanel();
         contentPane.setBackground(new Color(251, 246, 239));
         pomoFrame.setContentPane(contentPane);
-        PomoPanel pomoPanel = new PomoPanel();
         PomoMenuDesign();
+        pomoPanel = new PomoPanel();
         
         pomoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pomoFrame.setPreferredSize(new Dimension(220, 200));
+        pomoFrame.pack();
+        
         pomoFrame.setTitle("Pomodoro Timer");
         pomoFrame.getContentPane().add(pomoPanel.getPomoPanel());
         pomoFrame.setJMenuBar(menuBar);
-        pomoFrame.pack();
+
+        Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) screenSize.getWidth() - pomoFrame.getWidth() - 185;
+        int y = (int) screenSize.getHeight() - pomoFrame.getHeight() - 50;
+
+        pomoFrame.setLocation(x, y);
         pomoFrame.setVisible(true);
     }
 
@@ -51,7 +55,7 @@ public class PomoFrame {
             public void mouseClicked(MouseEvent e) {
                 if(e.getSource() == settings) {
                 System.out.println("Settings");
-                PomoSettingsDialog settingsGUI = new PomoSettingsDialog(pomoFrame);
+                PomoSettingsDialog settingsGUI = new PomoSettingsDialog();
                 settingsGUI.setLocationRelativeTo(pomoFrame);
                 settingsGUI.createAndShowGUI();
                 }
