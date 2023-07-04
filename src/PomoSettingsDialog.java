@@ -208,7 +208,7 @@ public class PomoSettingsDialog {
         windUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == alarmButton) {
+                if(e.getSource() == windUpButton) {
                     JFileChooser fileChooser = new JFileChooser();
                     int response = fileChooser.showOpenDialog(null); 
 

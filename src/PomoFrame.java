@@ -6,7 +6,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 
 
 public class PomoFrame {
@@ -28,8 +30,10 @@ public class PomoFrame {
         pomoFrame.setContentPane(contentPane);
         PomoMenuDesign();
         pomoPanel = new PomoPanel();
+
         
         pomoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         pomoFrame.setPreferredSize(new Dimension(220, 200));
         pomoFrame.pack();
         
@@ -90,6 +94,7 @@ public class PomoFrame {
 
         }
     }
+
     public JFrame getPomoFrame() {
         return pomoFrame;
     }

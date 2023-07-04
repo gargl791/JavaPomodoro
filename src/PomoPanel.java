@@ -111,6 +111,7 @@ public class PomoPanel {
                     updateTime();
                     formatTime();
                     bar.setForeground((new Color(242, 122, 125)));
+                    playAudio(PomoSettingsDialog.getAlarmDirFile());
                 }
 
             }
@@ -129,7 +130,7 @@ public class PomoPanel {
                 if (timeTrack <= 0) {
                     breakTime.stop();
                     if (breakFlag && shortBreakCount == 4) {
-                    addImgBreak(breakPanel, 20);
+                        addImgBreak(breakPanel, 20);
                     }
                     setBreakFlag(false);
                     setButtonVisibility(breakPanel, rest, false);
@@ -141,6 +142,7 @@ public class PomoPanel {
                     formatTime();
                     PomoFrame.setMenuStatus(false);
                     bar.setForeground(new Color(221, 190, 169));
+                    playAudio(PomoSettingsDialog.getAlarmDirFile());
                 }
             }
         });
@@ -176,14 +178,11 @@ public class PomoPanel {
                     setButtonVisibility(buttonPanel, restart, true);
                     setButtonVisibility(buttonPanel, start, false);
 
-                // if the timer is running, disable the settings menu
+                    // if the timer is running, disable the settings menu
                     PomoFrame.setMenuStatus(true);
                     time.start();
-                    try {
-                        PomoAudio.playAudio(PomoSettingsDialog.getAlarmDirFile());
-                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
-                        e1.printStackTrace();
-                    }
+                    playAudio(PomoSettingsDialog.getWindUpDirFile());
+
                 }
             }
         });
@@ -201,6 +200,7 @@ public class PomoPanel {
                 // if the timer is running, disable the settings menu
                 PomoFrame.setMenuStatus(true);
                 setButtonVisibility(buttonPanel, rest, false);
+                playAudio(PomoSettingsDialog.getWindUpDirFile());
             }
         });
 
@@ -235,9 +235,10 @@ public class PomoPanel {
                 bar.setString("RESTARTED");
                 setButtonVisibility(buttonPanel, start, true);
                 setButtonVisibility(buttonPanel, restart, false);
-                
+
                 // if the timer is running, disable the settings menu
                 PomoFrame.setMenuStatus(false);
+                
 
             }
         });
@@ -324,10 +325,9 @@ public class PomoPanel {
     }
 
     public void updateProgressBar() {
-        if(breakFlag) {
+        if (breakFlag) {
             bar.setForeground((new Color(242, 122, 125)));
-        }
-        else { 
+        } else {
             bar.setForeground((new Color(221, 190, 169)));
         }
         bar.setValue(((int) barFull - 1000));
@@ -362,24 +362,29 @@ public class PomoPanel {
         formattedTime = df.format(date);
         timerLabel.setText(formattedTime);
         timerLabel.setFont(digitalFontBold);
-        if(breakFlag) {
+        if (breakFlag) {
             timerLabel.setForeground(new Color(242, 122, 125));
-        }
-        else {
+        } else {
             timerLabel.setForeground(new Color(234, 215, 195));
         }
     }
 
+    public static void playAudio(File file) {
+        try {
+            PomoAudio.playAudio(PomoSettingsDialog.getAlarmDirFile());
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+            e1.printStackTrace();
+        }
+    }
+
     public void updateTime() {
-                if (breakFlag && shortBreakCount == 4) {
-                    timeTrack = longBreakTimeMs;
-                } 
-                else if (breakFlag && shortBreakCount < 4) {
-                    timeTrack = shortBreakTimeMs;
-                }
-                else {
-                    timeTrack = timeSetMs;
-                }
+        if (breakFlag && shortBreakCount == 4) {
+            timeTrack = longBreakTimeMs;
+        } else if (breakFlag && shortBreakCount < 4) {
+            timeTrack = shortBreakTimeMs;
+        } else {
+            timeTrack = timeSetMs;
+        }
     }
 
     public void setShortBreakCount(int count) {
@@ -396,7 +401,7 @@ public class PomoPanel {
         }
         timeSetMs = t;
 
-                formatTime();
+        formatTime();
     }
 
     public void setShortBreakTime(long t) {
@@ -405,7 +410,7 @@ public class PomoPanel {
         }
         shortBreakTimeMs = t;
 
-                formatTime();
+        formatTime();
     }
 
     public void setLongBreakTime(long t) {
@@ -414,7 +419,7 @@ public class PomoPanel {
         }
         longBreakTimeMs = t;
 
-                formatTime();
+        formatTime();
     }
 
     public long getPomoTime() {
