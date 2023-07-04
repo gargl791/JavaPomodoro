@@ -31,8 +31,8 @@ public class PomoPanel {
     private JButton start, rest, restart;
     private JProgressBar bar;
     private CountdownTimer count;
-    private long timeSet = 900 * 1000;
-    private long shortBreakTime = 350 * 1000;
+    private long timeSet = 60 * 1000;
+    private long shortBreakTime = 30 * 1000;
     private long longBreakTime = 400 * 1000;
     private long timeTrack;
     private long barFull;
@@ -173,11 +173,12 @@ public class PomoPanel {
                 System.out.println("Start button pressed");
                 timeTrack = timeSet;
                 if (!time.isRunning()) {
+                    barFull = timeTrack;
+                    bar.setMaximum((int) barFull);
+                    bar.setValue((int) barFull);
+                    setButtonVisibility(buttonPanel, restart, true);
+                    setButtonVisibility(buttonPanel, start, false);
                     time.start();
-                barFull = timeTrack;
-                bar.setValue((int) barFull);
-                setButtonVisibility(buttonPanel, restart, true);
-                setButtonVisibility(buttonPanel, start, false);
                 }
             }
         });
@@ -195,6 +196,7 @@ public class PomoPanel {
                     timeTrack = shortBreakTime;
                 }
                 barFull = timeTrack;
+                bar.setMaximum((int) barFull);
                 bar.setValue((int) barFull);
                 breakTime.start();
                 setButtonVisibility(buttonPanel, rest, false);
@@ -306,12 +308,6 @@ public class PomoPanel {
                 sb = new StringBuilder("images/d.png");
                 break;
             case 4:
-                setShortBreakCount(0);
-                panel.removeAll();
-                panel.revalidate();
-                panel.repaint();
-                return;
-            default:
                 setShortBreakCount(0);
                 panel.removeAll();
                 panel.revalidate();
