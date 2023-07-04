@@ -24,16 +24,16 @@ import javax.swing.SwingConstants;
 public class PomoSettingsDialog {
     private JTabbedPane tabbedPane;
     private JDialog dialog;
-    private JFrame frame;
+    private JFrame pomoFrame;
 
-    public PomoSettingsDialog() {
+    public PomoSettingsDialog(JFrame pomoFrame) {
         PomoSettingsDialogDesign();
+        this.pomoFrame = pomoFrame;
     }
 
     public void PomoSettingsDialogDesign() {
         //Creating the frame and jdialog box
-        frame = new JFrame();
-        dialog = new JDialog(frame, "Settings", true);
+        dialog = new JDialog(dialog, "Settings", true);
         dialog.setSize(new Dimension(225, 300));
 
         //Creating tabbed panes
@@ -119,16 +119,18 @@ public class PomoSettingsDialog {
         tabbedPane.add("Timer", timerPanel);
         tabbedPane.add("Sound", soundPanel);
         
-
-
         dialog.add(tabbedPane);
+
+    }
+
+    public void createAndShowGUI() {
+        dialog.pack();
         dialog.setVisible(true);
-
     }
 
-
-    public static void main(String[]args) {
-        new PomoSettingsDialog();
-    }
-
+    public void setLocationRelativeTo(JFrame pomoFrame){
+        int x = pomoFrame.getX();
+        int y = pomoFrame.getY();
+        dialog.setLocation(x, y);
+    }  
 }
