@@ -7,27 +7,30 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
-import CountdownTimer;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
+
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+
 
 public class PomoSettingsDialog {
     private JTabbedPane tabbedPane;
     private JDialog dialog;
     private static PomoPanel p;
+    private static File alarmDirFile;
+    private static File windUpDirFile;
 
     public PomoSettingsDialog() {
         PomoSettingsDialogDesign();
@@ -136,18 +139,95 @@ public class PomoSettingsDialog {
         //setting up the soundPanel
         JPanel soundPanel = new JPanel();
 
+        JPanel alarmPanel = new JPanel(new BorderLayout());
+        JPanel windUpPanel = new JPanel(new BorderLayout());
+
+        JPanel alarmNorthPanel = new JPanel();
+        JPanel alarmCenterPanel = new JPanel();
+        JPanel alarmSouthPanel = new JPanel();
+
+        JButton saveButton2 = new JButton("Save");
+
+        alarmNorthPanel.setLayout(new BoxLayout(alarmNorthPanel, BoxLayout.X_AXIS));
+        alarmCenterPanel.setLayout(new BoxLayout(alarmCenterPanel, BoxLayout.X_AXIS));
+        alarmSouthPanel.setLayout(new BoxLayout(alarmSouthPanel, BoxLayout.X_AXIS));
+        
+        JLabel alarmLabel = new JLabel("Alarm");
+        JTextField alarmText = new JTextField("Default");
+
+
+        alarmText.setEnabled(false);
+        alarmText.setColumns(9);
+
+
+
+        JButton alarmButton = new JButton("Choose File");
+        alarmButton.setPreferredSize(new Dimension(50,10));
+
+        alarmNorthPanel.add(alarmLabel, BorderLayout.WEST);
+        alarmNorthPanel.add(alarmText, BorderLayout.CENTER);
+        alarmNorthPanel.add(alarmButton, BorderLayout.EAST);
+
+        JLabel windUpLabel = new JLabel("Wind ");
+        JTextField windUpText = new JTextField("Default");
+        JButton windUpButton = new JButton("Choose File");
+
+        windUpText.setEnabled(false);
+        windUpText.setColumns(9);
+        windUpButton.setPreferredSize(new Dimension(50,10));
+        alarmCenterPanel.add(windUpLabel, BorderLayout.WEST);
+        alarmCenterPanel.add(windUpText, BorderLayout.CENTER);
+        alarmCenterPanel.add(windUpButton, BorderLayout.EAST);
+
+
+        alarmPanel.add(alarmNorthPanel, BorderLayout.NORTH);
+        alarmPanel.add(alarmCenterPanel, BorderLayout.CENTER);
+        alarmPanel.add(saveButton2, BorderLayout.SOUTH);
+        alarmPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+
+        soundPanel.add(alarmPanel, BorderLayout.NORTH);
+
+        //actionlisteners for alarmPanel
+        alarmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == alarmButton) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int response = fileChooser.showOpenDialog(null); 
+
+                    if(response == JFileChooser.APPROVE_OPTION) {
+                        
+                        alarmDirFile = new File(fileChooser.getSelectedFile().getAbsolutePath());
+                        alarmText.setText(alarmDirFile.getName());
+                    }
+                }
+            }
+        });
+
+        windUpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == alarmButton) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int response = fileChooser.showOpenDialog(null); 
+
+                    if(response == JFileChooser.APPROVE_OPTION) {
+                        windUpDirFile = new File(fileChooser.getSelectedFile().getAbsolutePath());
+                        windUpText.setText(windUpDirFile.getName());
+                    }
+                }
+            }
+        });
 
 
 
 
         tabbedPane.add("Timer", timerPanel);
         tabbedPane.add("Sound", soundPanel);
+        
 
         dialog.add(tabbedPane);
-
-
-
-
 
     }
 
@@ -169,4 +249,16 @@ public class PomoSettingsDialog {
         int y = pomoFrame.getY();
         dialog.setLocation(x, y);
     }
+
+    //getter and setter methods for alarmDirFile and windUpDirFile
+    public static File getAlarmDirFile() {
+        return alarmDirFile;
+    }
+
+
+    public static File getWindUpDirFile() {
+        return windUpDirFile;
+    }
+
+    
 }

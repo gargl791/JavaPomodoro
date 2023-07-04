@@ -12,12 +12,15 @@ import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.awt.Font;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -44,6 +47,7 @@ public class PomoPanel {
     private String formattedTime;
     private int shortBreakCount = 0;
     private boolean breakFlag = false;
+    private PomoAudio audio;
 
     public PomoPanel() {
         // use custom font for timer text
@@ -175,6 +179,11 @@ public class PomoPanel {
                 // if the timer is running, disable the settings menu
                     PomoFrame.setMenuStatus(true);
                     time.start();
+                    try {
+                        PomoAudio.playAudio(PomoSettingsDialog.getAlarmDirFile());
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
