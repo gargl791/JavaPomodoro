@@ -43,10 +43,8 @@ public class PomoSettingsDialog {
 
         // JPanel
         JPanel timerPanel = new JPanel();
-        JPanel soundPanel = new JPanel();
         timerPanel.setLayout(new BorderLayout());
         timerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        soundPanel.setLayout(new GridLayout());
 
         // setting up the timer panel
         JTextField timerField = new JTextField();
@@ -117,11 +115,6 @@ public class PomoSettingsDialog {
          * timerPanel.add(longBreakField);
          */
 
-        tabbedPane.add("Timer", timerPanel);
-        tabbedPane.add("Sound", soundPanel);
-
-        dialog.add(tabbedPane);
-
         // initializing the text fields
         p = new PomoPanel();
         timerField.setText(String.valueOf((convertToMin(p.getPomoTime()))));
@@ -135,10 +128,26 @@ public class PomoSettingsDialog {
                 p.setPomoTime(convertToMs(Long.valueOf(timerField.getText())));
                 p.setShortBreakTime(convertToMs(Long.valueOf(shortBreakField.getText())));
                 p.setLongBreakTime(convertToMs(Long.valueOf(longBreakField.getText())));
-                p.updateTime();
-                p.formatTime();
+                System.out.println("saved");
             }
         });
+
+
+        //setting up the soundPanel
+        JPanel soundPanel = new JPanel();
+
+
+
+
+
+        tabbedPane.add("Timer", timerPanel);
+        tabbedPane.add("Sound", soundPanel);
+
+        dialog.add(tabbedPane);
+
+
+
+
 
     }
 

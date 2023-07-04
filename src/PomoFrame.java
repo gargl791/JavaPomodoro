@@ -11,9 +11,11 @@ import javax.swing.JPanel;
 
 public class PomoFrame {
     private JFrame pomoFrame;
-    private JMenu settings, help;
+    private static JMenu settings;
+    private JMenu help;
     private JMenuBar menuBar;
     private static PomoPanel pomoPanel;
+    private static boolean menuStatus; // false is disabled, true is enabled
 
     public PomoFrame() {
         PomoDesign();
@@ -53,8 +55,9 @@ public class PomoFrame {
         settings.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getSource() == settings) {
+                if(e.getSource() == settings && menuStatus == false) {
                 System.out.println("Settings");
+                System.out.println(menuStatus);
                 PomoSettingsDialog settingsGUI = new PomoSettingsDialog();
                 settingsGUI.setLocationRelativeTo(pomoFrame);
                 settingsGUI.createAndShowGUI();
@@ -76,6 +79,17 @@ public class PomoFrame {
     }
 
 
+    public static void setMenuStatus(boolean flag) {
+        if(flag) {
+            settings.setEnabled(false);
+            PomoFrame.menuStatus = true;
+        }
+        else {
+            settings.setEnabled(true);
+            PomoFrame.menuStatus = false;
+
+        }
+    }
     public JFrame getPomoFrame() {
         return pomoFrame;
     }

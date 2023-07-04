@@ -31,9 +31,9 @@ public class PomoPanel {
     private JLabel timerLabel;
     private JButton start, rest, restart;
     private JProgressBar bar;
-    private static long timeSetMs = 60 * 1000;
-    private static long shortBreakTimeMs = 60 * 1000;
-    private static long longBreakTimeMs = 60 * 1000;
+    private static long timeSetMs = 1 * 1000;
+    private static long shortBreakTimeMs = 1 * 1000;
+    private static long longBreakTimeMs = 10 * 1000;
     private static long timeTrack;
     private long barFull;
     private long barIncrement;
@@ -94,7 +94,6 @@ public class PomoPanel {
                 timeTrack -= 1000; // decrements the time by 1 second
                 formatTime();
 
-
                 updateProgressBar();
                 if (timeTrack <= 0) {
                     time.stop();
@@ -104,8 +103,10 @@ public class PomoPanel {
                     shortBreakCount++;
                     setButtonVisibility(breakPanel, rest, true);
                     setButtonVisibility(breakPanel, restart, false);
+                    PomoFrame.setMenuStatus(false);
                     updateTime();
                     formatTime();
+                    bar.setForeground((new Color(242, 122, 125)));
                 }
 
             }
@@ -121,11 +122,11 @@ public class PomoPanel {
                 formatTime();
 
                 updateProgressBar();
-                if (breakFlag && shortBreakCount == 4) {
-                    addImgBreak(breakPanel, 20);
-                }
                 if (timeTrack <= 0) {
                     breakTime.stop();
+                    if (breakFlag && shortBreakCount == 4) {
+                    addImgBreak(breakPanel, 20);
+                    }
                     setBreakFlag(false);
                     setButtonVisibility(breakPanel, rest, false);
                     setButtonVisibility(breakPanel, restart, false);
@@ -134,6 +135,8 @@ public class PomoPanel {
                     System.out.println("COUNT: " + shortBreakCount);
                     updateTime();
                     formatTime();
+                    PomoFrame.setMenuStatus(false);
+                    bar.setForeground(new Color(221, 190, 169));
                 }
             }
         });
@@ -168,6 +171,9 @@ public class PomoPanel {
                     bar.setValue((int) barFull);
                     setButtonVisibility(buttonPanel, restart, true);
                     setButtonVisibility(buttonPanel, start, false);
+
+                // if the timer is running, disable the settings menu
+                    PomoFrame.setMenuStatus(true);
                     time.start();
                 }
             }
@@ -183,6 +189,8 @@ public class PomoPanel {
                 bar.setMaximum((int) barFull);
                 bar.setValue((int) barFull);
                 breakTime.start();
+                // if the timer is running, disable the settings menu
+                PomoFrame.setMenuStatus(true);
                 setButtonVisibility(buttonPanel, rest, false);
             }
         });
@@ -218,6 +226,10 @@ public class PomoPanel {
                 bar.setString("RESTARTED");
                 setButtonVisibility(buttonPanel, start, true);
                 setButtonVisibility(buttonPanel, restart, false);
+                
+                // if the timer is running, disable the settings menu
+                PomoFrame.setMenuStatus(false);
+
             }
         });
 
@@ -303,6 +315,12 @@ public class PomoPanel {
     }
 
     public void updateProgressBar() {
+        if(breakFlag) {
+            bar.setForeground((new Color(242, 122, 125)));
+        }
+        else { 
+            bar.setForeground((new Color(221, 190, 169)));
+        }
         bar.setValue(((int) barFull - 1000));
         barFull = barFull - 1000;
 
@@ -367,7 +385,6 @@ public class PomoPanel {
         while (time.isRunning()) {
             System.out.println("wait pomo");
         }
-        time.stop();
         timeSetMs = t;
 
                 formatTime();
@@ -377,7 +394,6 @@ public class PomoPanel {
         while (breakTime.isRunning()) {
             System.out.println("wait short break");
         }
-        time.stop();
         shortBreakTimeMs = t;
 
                 formatTime();
@@ -387,7 +403,6 @@ public class PomoPanel {
         while (breakTime.isRunning()) {
             System.out.println("wait long break");
         }
-        time.stop();
         longBreakTimeMs = t;
 
                 formatTime();
