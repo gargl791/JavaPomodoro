@@ -38,7 +38,7 @@ public class PomoPanel {
     private SimpleDateFormat df;
     private JPanel pomoPanel;
     private JLabel timerLabel;
-    private JButton start, rest, restart;
+    private JButton start, rest, restart, skip;
     private JProgressBar bar;
     private static long timeSetMs = 5 * 1000;
     private static long shortBreakTimeMs = 1 * 1000;
@@ -54,7 +54,6 @@ public class PomoPanel {
     private int shortBreakCount = 0;
     private boolean breakFlag = false;
     private PomoAudio audio;
-
 
     public PomoPanel() {
         // use custom font for timer text
@@ -77,16 +76,17 @@ public class PomoPanel {
         timePanel.setLayout(new BorderLayout());
         timeTrack = timeSetMs;
 
-        //if time is greater than 1 hour, display hours, else display minutes and seconds
+        // if time is greater than 1 hour, display hours, else display minutes and
+        // seconds
         df = new SimpleDateFormat(new String(timeTrack >= 3600000 ? "HH:mm:ss" : "mm:ss"));
-            date = new Date(timeTrack);
-            df.setTimeZone(TimeZone.getTimeZone("UTC"));
-            formattedTime = df.format(date);
+        date = new Date(timeTrack);
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formattedTime = df.format(date);
 
-            timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
-            timerLabel.setText(formattedTime);
-            timerLabel.setFont(digitalFontBold);
-            timerLabel.setForeground(new Color(234, 215, 195));
+        timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
+        timerLabel.setText(formattedTime);
+        timerLabel.setFont(digitalFontBold);
+        timerLabel.setForeground(new Color(234, 215, 195));
 
         bar = new JProgressBar();
         bar.setForeground(new Color(221, 190, 169));
@@ -99,6 +99,9 @@ public class PomoPanel {
 
         // breakPanel to indicate short breaks
         JPanel breakPanel = new JPanel(new FlowLayout());
+
+        //button panel for interactive jbuttons
+        JPanel buttonPanel = new JPanel(new FlowLayout());
         breakPanel.setBackground(new Color(251, 246, 239));
         time = new Timer(1000, new ActionListener() {
             @Override
@@ -107,22 +110,28 @@ public class PomoPanel {
                 System.out.println(timeTrack / 1000);
                 System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
                 timeTrack -= 1000; // decrements the time by 1 second
-                
-                
+
                 formatTime();
 
-                updateProgressBar();
+                if(timeTrack >= 0) {
+                    updateProgressBar();
+                }
                 if (timeTrack <= 0) {
                     time.stop();
                     setBreakFlag(true);
 
                     addImgBreak(breakPanel, 20);
                     shortBreakCount++;
-                    setButtonVisibility(breakPanel, rest, true);
-                    setButtonVisibility(breakPanel, restart, false);
+                    setButtonVisibility(buttonPanel, rest, true);
+                    setButtonVisibility(buttonPanel, restart, false);
+                    setButtonVisibility(buttonPanel, skip, false);
+
                     PomoFrame.setMenuStatus(false);
                     updateTime();
                     formatTime();
+                    barFull = timeTrack;
+                    bar.setMaximum((int) barFull);
+                    bar.setValue((int) barFull);
                     bar.setForeground((new Color(242, 122, 125)));
                     playAudio(true);
                     System.out.println(PomoAudio.getAlarmDirFile());
@@ -140,21 +149,28 @@ public class PomoPanel {
 
                 formatTime();
 
-                updateProgressBar();
+                if(timeTrack >= 0) {
+                    updateProgressBar();
+                }
+                
                 if (timeTrack <= 0) {
                     breakTime.stop();
                     if (breakFlag && shortBreakCount == 4) {
                         addImgBreak(breakPanel, 20);
                     }
                     setBreakFlag(false);
-                    setButtonVisibility(breakPanel, rest, false);
-                    setButtonVisibility(breakPanel, restart, false);
-                    setButtonVisibility(breakPanel, start, true);
+                    setButtonVisibility(buttonPanel, rest, false);
+                    setButtonVisibility(buttonPanel, restart, false);
+                    setButtonVisibility(buttonPanel, start, true);
+                    setButtonVisibility(buttonPanel, skip, false);
                     timerLabel.setForeground(new Color(234, 215, 195));
                     System.out.println("COUNT: " + shortBreakCount);
                     updateTime();
                     formatTime();
                     PomoFrame.setMenuStatus(false);
+                    barFull = timeTrack;
+                    bar.setMaximum((int) barFull);
+                    bar.setValue((int) barFull);
                     bar.setForeground(new Color(221, 190, 169));
                     playAudio(true);
                     System.out.println(PomoAudio.getAlarmDirFile());
@@ -171,12 +187,11 @@ public class PomoPanel {
         pomoPanel.setLayout(new BorderLayout());
 
         // buttonPanel for button interaction
-        JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setBackground(new Color(251, 246, 239));
         pomoPanel.setBackground(new Color(251, 246, 239));
 
         start = new JButton();
-        /* JButton pause = new JButton(); */
+        skip = new JButton();
         restart = new JButton();
         rest = new JButton();
 
@@ -185,16 +200,19 @@ public class PomoPanel {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 System.out.println("Start button pressed");
-                timeTrack = timeSetMs;
+                updateTime();
                 if (!time.isRunning()) {
                     barFull = timeTrack;
                     bar.setMaximum((int) barFull);
                     bar.setValue((int) barFull);
+                    setButtonVisibility(buttonPanel, skip, true);
                     setButtonVisibility(buttonPanel, restart, true);
                     setButtonVisibility(buttonPanel, start, false);
+                    
 
                     // if the timer is running, disable the settings menu
                     PomoFrame.setMenuStatus(true);
+
                     time.start();
                     playAudio(false);
                     System.out.println(PomoAudio.getWindUpDirFile());
@@ -217,25 +235,38 @@ public class PomoPanel {
                 PomoFrame.setMenuStatus(true);
 
                 setButtonVisibility(buttonPanel, rest, false);
+                setButtonVisibility(buttonPanel, skip, true);
+                setButtonVisibility(buttonPanel, restart, true);
                 playAudio(false);
                 System.out.println(PomoAudio.getWindUpDirFile());
             }
         });
 
-        /*
-         * //pause button
-         * setButtonVisibility(buttonPanel, pause, false);
-         * pause.addActionListener(new ActionListener() {
-         * 
-         * @Override
-         * public void actionPerformed(java.awt.event.ActionEvent e) {
-         * System.out.println("Pause button pressed");
-         * if(time.isRunning()){
-         * time.stop();
-         * }
-         * }
-         * });
-         */
+        //interrupt button for stopping the timer
+        setButtonVisibility(buttonPanel, skip, false);
+        skip.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                System.out.println("Stop button pressed");
+                timeTrack = 0;
+                if (time.isRunning() || breakTime.isRunning()) {
+                if(breakFlag && shortBreakCount == 4) {
+                    bar.setString("LONG BREAK SKIPPED");
+                    bar.setMaximum((int) longBreakTimeMs);
+                    bar.setValue((int) longBreakTimeMs);
+                } else if (breakFlag) {
+                    bar.setString("SHORT BREAK SKIPPED");
+                    bar.setMaximum((int) shortBreakTimeMs);
+                    bar.setValue((int) shortBreakTimeMs);
+                } else {
+                    bar.setString("FOCUS SKIPPED");
+                    bar.setMaximum((int) timeSetMs);
+                    bar.setValue((int) timeSetMs);
+                }
+                }
+            }
+        });
 
         // restart button
         setButtonVisibility(buttonPanel, restart, false);
@@ -243,41 +274,51 @@ public class PomoPanel {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 System.out.println("Restart button pressed");
-                time.stop();
-                timeTrack = timeSetMs;
+                String state = "";
+                if(time.isRunning()) {
+                    time.restart();
+                    time.stop();
+                    setButtonVisibility(buttonPanel, start, true);
+                } else if (breakTime.isRunning()) {
+                    breakTime.restart();
+                    breakTime.stop();
+                    setButtonVisibility(buttonPanel, rest, true);
+                }
+                updateTime();
                 barFull = timeSetMs;
                 bar.setMaximum((int) barFull);
                 bar.setValue((int) barFull);
                 date = new Date(timeTrack);
                 formatTime();
-                bar.setString("RESTARTED");
-                setButtonVisibility(buttonPanel, start, true);
+                bar.setString("RESTARTED " + state);
+                
                 setButtonVisibility(buttonPanel, restart, false);
+                setButtonVisibility(buttonPanel, skip, false);
 
                 // if the timer is running, disable the settings menu
                 PomoFrame.setMenuStatus(false);
-                
 
             }
         });
 
+        //set up images and jbutton sizes
         int size = 30;
         restart.setPreferredSize(new Dimension(size, size));
-        // pause.setPreferredSize(new Dimension(size, size));
+        skip.setPreferredSize(new Dimension(size, size));
         start.setPreferredSize(new Dimension(size, size));
         rest.setPreferredSize(new Dimension(size, size));
         addImg(start, "images/start.png", size);
-        // addImg(pause, "images/pause.png", size);
+        addImg(skip, "images/skip.jpg", size);
         addImg(restart, "images/restart.png", size);
         addImg(rest, "images/rest.png", size);
 
         buttonPanel.add(start);
-        // buttonPanel.add(pause);
+        buttonPanel.add(skip);
         buttonPanel.add(restart);
         buttonPanel.add(rest);
 
         start.setBackground(new Color(234, 215, 195));
-        // pause.setBackground(new Color(234, 215, 195));
+        skip.setBackground(new Color(234, 215, 195));
         restart.setBackground(new Color(234, 215, 195));
         rest.setBackground(new Color(234, 215, 195));
 
@@ -309,10 +350,9 @@ public class PomoPanel {
     public void addImgBreak(JPanel panel, int size) {
         StringBuilder sb = new StringBuilder("images/");
         Random r = new Random();
-        //rng of chars within a - h
+        // rng of chars within a - h
         String imgFile = ".png";
-        String randomChar = String.valueOf((char)(r.nextInt(104 - 97 + 1) + 97));
-        
+        String randomChar = String.valueOf((char) (r.nextInt(104 - 97 + 1) + 97));
 
         switch (shortBreakCount) {
             case 0:
@@ -346,37 +386,38 @@ public class PomoPanel {
     }
 
     public void updateProgressBar() {
-        if (breakFlag) {
-            bar.setForeground((new Color(242, 122, 125)));
-        } else {
-            bar.setForeground((new Color(221, 190, 169)));
-        }
         bar.setValue(((int) barFull - 1000));
         barFull = barFull - 1000;
+        System.out.println("BARFULL: " + barFull);
 
         if (barFull == 0 && breakFlag && shortBreakCount == 4) {
             bar.setString("LONG BREAK DONE");
             return;
-        }
-        else if (barFull == 0 && breakFlag) {
+        } else if (barFull == 0 && breakFlag) {
             bar.setString("SHORT BREAK DONE");
             return;
-        }
-        else if (barFull == 0) {
+        } else if (barFull == 0) {
             bar.setString("FOCUS DONE");
             return;
         }
+
         if (barFull % 2000 == 1000) {
             bar.setString("");
             return;
         }
+
+
         if (breakFlag && shortBreakCount == 4) {
             bar.setString("LONG BREAK");
+            bar.setForeground((new Color(242, 122, 125)));
         } else if (!breakFlag) {
             bar.setString("FOCUS");
+            bar.setForeground((new Color(221, 190, 169)));
         } else if (breakFlag) {
             bar.setString("SHORT BREAK");
+            bar.setForeground((new Color(242, 122, 125)));
         }
+
     }
 
     public void setButtonVisibility(JPanel panel, JButton b, boolean flag) {
@@ -434,12 +475,12 @@ public class PomoPanel {
         }
         try {
             Scanner scanner = new Scanner(file);
-            while(scanner.hasNextLong()) {
+            while (scanner.hasNextLong()) {
                 timeSetMs = scanner.nextLong();
                 shortBreakTimeMs = scanner.nextLong();
                 longBreakTimeMs = scanner.nextLong();
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -461,15 +502,15 @@ public class PomoPanel {
 
         formatTime();
     }
-    //assumes the timer is not running. Method for updating the time after settings change
+
+    // assumes the timer is not running. Method for updating the time after settings
+    // change
     public void updateTimeTrack() {
-        if(breakFlag && shortBreakCount == 4) {
+        if (breakFlag && shortBreakCount == 4) {
             timeTrack = longBreakTimeMs;
-        }
-        else if(breakFlag && shortBreakCount < 4) {
+        } else if (breakFlag && shortBreakCount < 4) {
             timeTrack = shortBreakTimeMs;
-        }
-        else {
+        } else {
             timeTrack = timeSetMs;
         }
         formatTime();
