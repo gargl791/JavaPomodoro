@@ -8,7 +8,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -130,6 +131,16 @@ public class PomoSettingsDialog {
                 p.setPomoTime(convertToMs(Long.valueOf(timerField.getText())));
                 p.setShortBreakTime(convertToMs(Long.valueOf(shortBreakField.getText())));
                 p.setLongBreakTime(convertToMs(Long.valueOf(longBreakField.getText())));
+
+                try (FileWriter writer = new FileWriter("bin/data/pomoTime.txt")) {
+                    writer.write(String.valueOf(convertToMs(Long.valueOf(timerField.getText()))));
+                    writer.write("\n" + String.valueOf(convertToMs(Long.valueOf(shortBreakField.getText()))));
+                    writer.write("\n" + String.valueOf(convertToMs(Long.valueOf(longBreakField.getText()))));
+                    writer.close();
+                } 
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
                 dialog.dispose();
                 System.out.println("saved");
             }

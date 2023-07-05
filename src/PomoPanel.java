@@ -12,10 +12,12 @@ import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 import java.awt.Font;
 
 import javax.imageio.ImageIO;
@@ -60,7 +62,9 @@ public class PomoPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        checkPomoTime();
         PomoPanelDesign();
+
     }
 
     public void PomoPanelDesign() {
@@ -390,6 +394,33 @@ public class PomoPanel {
             timeTrack = shortBreakTimeMs;
         } else {
             timeTrack = timeSetMs;
+        }
+    }
+
+    public void checkPomoTime() {
+        File file = new File("bin/data/pomoTime.txt");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                FileWriter writer = new FileWriter(file);
+                writer.write("1500000" + "\n");
+                writer.write("300000" + "\n");
+                writer.write("600000" + "\n");
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            Scanner scanner = new Scanner(file);
+            while(scanner.hasNextLong()) {
+                timeSetMs = scanner.nextLong();
+                shortBreakTimeMs = scanner.nextLong();
+                longBreakTimeMs = scanner.nextLong();
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

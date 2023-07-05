@@ -1,1 +1,1 @@
-C:\Users\Glen G\OneDrive\Documents\Pprojects\JavaPomodoro\sound\bowomp.wav
+C:\Users\Glen G\OneDrive\Documents\Pprojects\JavaPomodoro\sound\alarm.wav
