@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -37,6 +38,7 @@ public class PomoFrame {
         pomoFrame.setPreferredSize(new Dimension(200, 210));
         pomoFrame.pack();
         
+
         pomoFrame.setTitle("");
         pomoFrame.getContentPane().add(pomoPanel.getPomoPanel());
         pomoFrame.setJMenuBar(menuBar);

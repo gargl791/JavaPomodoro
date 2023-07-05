@@ -1,10 +1,14 @@
 import java.awt.FlowLayout;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
+import java.util.TimeZone;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 public class testBox extends JFrame {
@@ -44,19 +48,11 @@ public class testBox extends JFrame {
         SwingUtilities.invokeLater(() -> {
             new testBox().setVisible(true);
         });
+        int min = 60 * 1000 * 60;
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String formattedTime = df.format((new Date(min)));
+        System.out.println(formattedTime);
 
-        System.out.println((int)'a');
-        System.out.println((int)'b');
-        System.out.println((int)'c');
-        System.out.println((int)'d');
-        System.out.println((int)'e');
-        System.out.println((int)'f');
-        System.out.println((int)'g');
-        System.out.println((int)'h' + "\n\n");
-        Random r = new Random();
-        for(int i = 0; i < 10; i++) {
-            System.out.println(Character.toChars(r.nextInt(104 - 97 + 1) + 97));
-        }
-        
     }
 }

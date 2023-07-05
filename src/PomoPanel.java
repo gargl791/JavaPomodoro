@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.TimeZone;
 import java.awt.Font;
 
 import javax.imageio.ImageIO;
@@ -34,7 +35,7 @@ import javax.swing.Timer;
 
 public class PomoPanel {
 
-    private SimpleDateFormat df = new SimpleDateFormat("mm:ss");
+    private SimpleDateFormat df;
     private JPanel pomoPanel;
     private JLabel timerLabel;
     private JButton start, rest, restart;
@@ -76,13 +77,16 @@ public class PomoPanel {
         timePanel.setLayout(new BorderLayout());
         timeTrack = timeSetMs;
 
-        date = new Date(timeTrack);
-        formattedTime = df.format(date);
+        //if time is greater than 1 hour, display hours, else display minutes and seconds
+        df = new SimpleDateFormat(new String(timeTrack >= 3600000 ? "HH:mm:ss" : "mm:ss"));
+            date = new Date(timeTrack);
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            formattedTime = df.format(date);
 
-        timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
-        timerLabel.setText(formattedTime);
-        timerLabel.setFont(digitalFontBold);
-        timerLabel.setForeground(new Color(234, 215, 195));
+            timerLabel = new JLabel(formattedTime, SwingConstants.CENTER);
+            timerLabel.setText(formattedTime);
+            timerLabel.setFont(digitalFontBold);
+            timerLabel.setForeground(new Color(234, 215, 195));
 
         bar = new JProgressBar();
         bar.setForeground(new Color(221, 190, 169));
@@ -103,6 +107,8 @@ public class PomoPanel {
                 System.out.println(timeTrack / 1000);
                 System.out.println("m:s " + (int) Math.floor(timeTrack / 1000 / 60) + ":" + (timeTrack / 1000 % 60));
                 timeTrack -= 1000; // decrements the time by 1 second
+                
+                
                 formatTime();
 
                 updateProgressBar();
@@ -381,8 +387,10 @@ public class PomoPanel {
     }
 
     public void formatTime() {
-        date = new Date(timeTrack);
-        formattedTime = df.format(date);
+        df = new SimpleDateFormat(new String(timeTrack >= 3600000 ? "HH:mm:ss" : "mm:ss"));
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formattedTime = df.format(new Date(timeTrack));
+        System.out.println("TIME: " + formattedTime);
         timerLabel.setText(formattedTime);
         timerLabel.setFont(digitalFontBold);
         if (breakFlag) {
