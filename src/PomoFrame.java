@@ -34,10 +34,10 @@ public class PomoFrame {
         
         pomoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        pomoFrame.setPreferredSize(new Dimension(220, 200));
+        pomoFrame.setPreferredSize(new Dimension(200, 210));
         pomoFrame.pack();
         
-        pomoFrame.setTitle("Pomodoro Timer");
+        pomoFrame.setTitle("");
         pomoFrame.getContentPane().add(pomoPanel.getPomoPanel());
         pomoFrame.setJMenuBar(menuBar);
 
@@ -48,7 +48,7 @@ public class PomoFrame {
         pomoFrame.setLocation(x, y);
 
         PomoAudio.checkAudio(); //checks if audio files exist
-        
+
         pomoFrame.setVisible(true);
     }
 

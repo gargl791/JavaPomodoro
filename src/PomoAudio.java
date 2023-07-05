@@ -113,14 +113,12 @@ public class PomoAudio {
                 try {
                     playAudio(true);
                 } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             } else if (response.equals("S")) {
                 try {
                     playAudio(false);
                 } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }

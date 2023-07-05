@@ -2,6 +2,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 import java.awt.Font;
 
@@ -93,7 +96,6 @@ public class PomoPanel {
         // breakPanel to indicate short breaks
         JPanel breakPanel = new JPanel(new FlowLayout());
         breakPanel.setBackground(new Color(251, 246, 239));
-
         time = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -108,7 +110,7 @@ public class PomoPanel {
                     time.stop();
                     setBreakFlag(true);
 
-                    addImgBreak(breakPanel, 15);
+                    addImgBreak(breakPanel, 20);
                     shortBreakCount++;
                     setButtonVisibility(breakPanel, rest, true);
                     setButtonVisibility(breakPanel, restart, false);
@@ -299,23 +301,26 @@ public class PomoPanel {
     }
 
     public void addImgBreak(JPanel panel, int size) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("images/");
+        Random r = new Random();
+        //rng of chars within a - h
+        String imgFile = ".png";
+        String randomChar = String.valueOf((char)(r.nextInt(104 - 97 + 1) + 97));
+        
+
         switch (shortBreakCount) {
             case 0:
-                sb.setLength(0);
-                sb = new StringBuilder("images/a.gif");
+                sb.append(randomChar + imgFile);
+                System.out.println(sb.toString());
                 break;
             case 1:
-                sb.setLength(0);
-                sb = new StringBuilder("images/b.png");
+                sb.append(randomChar + imgFile);
                 break;
             case 2:
-                sb.setLength(0);
-                sb = new StringBuilder("images/c.png");
+                sb.append(randomChar + imgFile);
                 break;
             case 3:
-                sb.setLength(0);
-                sb = new StringBuilder("images/d.png");
+                sb.append(randomChar + imgFile);
                 break;
             case 4:
                 setShortBreakCount(0);
@@ -343,8 +348,16 @@ public class PomoPanel {
         bar.setValue(((int) barFull - 1000));
         barFull = barFull - 1000;
 
-        if (barFull == 0) {
-            bar.setString("FINISHED");
+        if (barFull == 0 && breakFlag && shortBreakCount == 4) {
+            bar.setString("LONG BREAK DONE");
+            return;
+        }
+        else if (barFull == 0 && breakFlag) {
+            bar.setString("SHORT BREAK DONE");
+            return;
+        }
+        else if (barFull == 0) {
+            bar.setString("FOCUS DONE");
             return;
         }
         if (barFull % 2000 == 1000) {

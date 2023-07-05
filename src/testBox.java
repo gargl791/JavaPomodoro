@@ -1,4 +1,5 @@
 import java.awt.FlowLayout;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -44,6 +45,18 @@ public class testBox extends JFrame {
             new testBox().setVisible(true);
         });
 
+        System.out.println((int)'a');
+        System.out.println((int)'b');
+        System.out.println((int)'c');
+        System.out.println((int)'d');
+        System.out.println((int)'e');
+        System.out.println((int)'f');
+        System.out.println((int)'g');
+        System.out.println((int)'h' + "\n\n");
+        Random r = new Random();
+        for(int i = 0; i < 10; i++) {
+            System.out.println(Character.toChars(r.nextInt(104 - 97 + 1) + 97));
+        }
         
     }
 }
