@@ -29,10 +29,9 @@ public class PomoSettingsDialog {
     private JTabbedPane tabbedPane;
     private JDialog dialog;
     private static PomoPanel p;
-    private static File alarmDirFile;
-    private static File windUpDirFile;
 
     public PomoSettingsDialog() {
+        PomoAudio.checkAudio();
         PomoSettingsDialogDesign();
     }
 
@@ -131,6 +130,7 @@ public class PomoSettingsDialog {
                 p.setPomoTime(convertToMs(Long.valueOf(timerField.getText())));
                 p.setShortBreakTime(convertToMs(Long.valueOf(shortBreakField.getText())));
                 p.setLongBreakTime(convertToMs(Long.valueOf(longBreakField.getText())));
+                dialog.dispose();
                 System.out.println("saved");
             }
         });
@@ -153,13 +153,20 @@ public class PomoSettingsDialog {
         alarmSouthPanel.setLayout(new BoxLayout(alarmSouthPanel, BoxLayout.X_AXIS));
         
         JLabel alarmLabel = new JLabel("Alarm");
-        JTextField alarmText = new JTextField("Default");
 
+        JTextField alarmText = new JTextField(PomoAudio.getAlarmDirFile().getName());
+        JTextField windUpText = new JTextField(PomoAudio.getWindUpDirFile().getName());
+        
+        //checks if it is using the default audio files
+        if(alarmText.getText().equals("alarm.wav")) {
+            alarmText.setText("Default");
+        }
+        if(windUpText.getText().equals("windup.wav")) {
+            windUpText.setText("Default");
+        }
 
         alarmText.setEnabled(false);
         alarmText.setColumns(9);
-
-
 
         JButton alarmButton = new JButton("Choose File");
         alarmButton.setPreferredSize(new Dimension(50,10));
@@ -169,7 +176,7 @@ public class PomoSettingsDialog {
         alarmNorthPanel.add(alarmButton, BorderLayout.EAST);
 
         JLabel windUpLabel = new JLabel("Wind ");
-        JTextField windUpText = new JTextField("Default");
+        
         JButton windUpButton = new JButton("Choose File");
 
         windUpText.setEnabled(false);
@@ -186,6 +193,7 @@ public class PomoSettingsDialog {
         alarmPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
 
+
         soundPanel.add(alarmPanel, BorderLayout.NORTH);
 
         //actionlisteners for alarmPanel
@@ -198,8 +206,8 @@ public class PomoSettingsDialog {
 
                     if(response == JFileChooser.APPROVE_OPTION) {
                         
-                        alarmDirFile = new File(fileChooser.getSelectedFile().getAbsolutePath());
-                        alarmText.setText(alarmDirFile.getName());
+                        PomoAudio.saveAudio(new File(fileChooser.getSelectedFile().getAbsolutePath()), true);
+                        alarmText.setText(PomoAudio.getAlarmDirFile().getName());
                     }
                 }
             }
@@ -213,9 +221,20 @@ public class PomoSettingsDialog {
                     int response = fileChooser.showOpenDialog(null); 
 
                     if(response == JFileChooser.APPROVE_OPTION) {
-                        windUpDirFile = new File(fileChooser.getSelectedFile().getAbsolutePath());
-                        windUpText.setText(windUpDirFile.getName());
+                        PomoAudio.saveAudio(new File(fileChooser.getSelectedFile().getAbsolutePath()), false);
+                        windUpText.setText(PomoAudio.getWindUpDirFile().getName());
                     }
+                }
+            }
+        });
+
+        saveButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == saveButton2) {
+                    PomoAudio.checkAudio();
+                    dialog.dispose();
+                    System.out.println("saved2");
                 }
             }
         });
@@ -248,16 +267,6 @@ public class PomoSettingsDialog {
         int x = pomoFrame.getX();
         int y = pomoFrame.getY();
         dialog.setLocation(x, y);
-    }
-
-    //getter and setter methods for alarmDirFile and windUpDirFile
-    public static File getAlarmDirFile() {
-        return alarmDirFile;
-    }
-
-
-    public static File getWindUpDirFile() {
-        return windUpDirFile;
     }
 
     

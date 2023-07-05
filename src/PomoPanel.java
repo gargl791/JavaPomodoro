@@ -34,7 +34,7 @@ public class PomoPanel {
     private JLabel timerLabel;
     private JButton start, rest, restart;
     private JProgressBar bar;
-    private static long timeSetMs = 1 * 1000;
+    private static long timeSetMs = 5 * 1000;
     private static long shortBreakTimeMs = 1 * 1000;
     private static long longBreakTimeMs = 10 * 1000;
     private static long timeTrack;
@@ -48,6 +48,7 @@ public class PomoPanel {
     private int shortBreakCount = 0;
     private boolean breakFlag = false;
     private PomoAudio audio;
+
 
     public PomoPanel() {
         // use custom font for timer text
@@ -111,7 +112,8 @@ public class PomoPanel {
                     updateTime();
                     formatTime();
                     bar.setForeground((new Color(242, 122, 125)));
-                    playAudio(PomoSettingsDialog.getAlarmDirFile());
+                    playAudio(true);
+                    System.out.println(PomoAudio.getAlarmDirFile());
                 }
 
             }
@@ -142,7 +144,8 @@ public class PomoPanel {
                     formatTime();
                     PomoFrame.setMenuStatus(false);
                     bar.setForeground(new Color(221, 190, 169));
-                    playAudio(PomoSettingsDialog.getAlarmDirFile());
+                    playAudio(true);
+                    System.out.println(PomoAudio.getAlarmDirFile());
                 }
             }
         });
@@ -181,7 +184,8 @@ public class PomoPanel {
                     // if the timer is running, disable the settings menu
                     PomoFrame.setMenuStatus(true);
                     time.start();
-                    playAudio(PomoSettingsDialog.getWindUpDirFile());
+                    playAudio(false);
+                    System.out.println(PomoAudio.getWindUpDirFile());
 
                 }
             }
@@ -199,8 +203,10 @@ public class PomoPanel {
                 breakTime.start();
                 // if the timer is running, disable the settings menu
                 PomoFrame.setMenuStatus(true);
+
                 setButtonVisibility(buttonPanel, rest, false);
-                playAudio(PomoSettingsDialog.getWindUpDirFile());
+                playAudio(false);
+                System.out.println(PomoAudio.getWindUpDirFile());
             }
         });
 
@@ -369,9 +375,9 @@ public class PomoPanel {
         }
     }
 
-    public static void playAudio(File file) {
+    public static void playAudio(boolean flag) {
         try {
-            PomoAudio.playAudio(PomoSettingsDialog.getAlarmDirFile());
+            PomoAudio.playAudio(flag);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
             e1.printStackTrace();
         }

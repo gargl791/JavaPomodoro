@@ -46,6 +46,9 @@ public class PomoFrame {
         int y = (int) screenSize.getHeight() - pomoFrame.getHeight() - 50;
 
         pomoFrame.setLocation(x, y);
+
+        PomoAudio.checkAudio(); //checks if audio files exist
+        
         pomoFrame.setVisible(true);
     }
 
