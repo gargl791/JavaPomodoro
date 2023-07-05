@@ -29,9 +29,10 @@ import javax.swing.JTextField;
 public class PomoSettingsDialog {
     private JTabbedPane tabbedPane;
     private JDialog dialog;
-    private static PomoPanel p;
+    private PomoPanel p;
 
-    public PomoSettingsDialog() {
+    public PomoSettingsDialog(PomoPanel p) {
+        this.p = p;
         PomoAudio.checkAudio();
         PomoSettingsDialogDesign();
     }
@@ -119,7 +120,6 @@ public class PomoSettingsDialog {
          */
 
         // initializing the text fields
-        p = new PomoPanel();
         timerField.setText(String.valueOf((convertToMin(p.getPomoTime()))));
         shortBreakField.setText(String.valueOf(convertToMin(p.getShortBreakTime())));
         longBreakField.setText(String.valueOf(convertToMin(p.getLongBreakTime())));
@@ -131,6 +131,9 @@ public class PomoSettingsDialog {
                 p.setPomoTime(convertToMs(Long.valueOf(timerField.getText())));
                 p.setShortBreakTime(convertToMs(Long.valueOf(shortBreakField.getText())));
                 p.setLongBreakTime(convertToMs(Long.valueOf(longBreakField.getText())));
+                
+                //while the timer isnt running, updates the time when changed in settings
+                p.updateTimeTrack();
 
                 try (FileWriter writer = new FileWriter("bin/data/pomoTime.txt")) {
                     writer.write(String.valueOf(convertToMs(Long.valueOf(timerField.getText()))));

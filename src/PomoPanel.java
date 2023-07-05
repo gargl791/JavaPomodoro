@@ -461,6 +461,20 @@ public class PomoPanel {
 
         formatTime();
     }
+    //assumes the timer is not running. Method for updating the time after settings change
+    public void updateTimeTrack() {
+        if(breakFlag && shortBreakCount == 4) {
+            timeTrack = longBreakTimeMs;
+        }
+        else if(breakFlag && shortBreakCount < 4) {
+            timeTrack = shortBreakTimeMs;
+        }
+        else {
+            timeTrack = timeSetMs;
+        }
+        formatTime();
+        pomoPanel.repaint();
+    }
 
     public void setShortBreakTime(long t) {
         while (breakTime.isRunning()) {

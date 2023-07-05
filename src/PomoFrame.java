@@ -17,7 +17,7 @@ public class PomoFrame {
     private static JMenu settings;
     private JMenu help;
     private JMenuBar menuBar;
-    private static PomoPanel pomoPanel;
+    private PomoPanel pomoPanel;
     private static boolean menuStatus; // false is disabled, true is enabled
 
     public PomoFrame() {
@@ -67,7 +67,7 @@ public class PomoFrame {
                 if(e.getSource() == settings && menuStatus == false) {
                 System.out.println("Settings");
                 System.out.println(menuStatus);
-                PomoSettingsDialog settingsGUI = new PomoSettingsDialog();
+                PomoSettingsDialog settingsGUI = new PomoSettingsDialog(pomoPanel);
                 settingsGUI.setLocationRelativeTo(pomoFrame);
                 settingsGUI.createAndShowGUI();
                 }
