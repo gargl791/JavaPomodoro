@@ -39,14 +39,14 @@ public class PomoAudio {
             return;
         try {
             if (flag) {
-                writer = new FileWriter("bin/data/alarmDir.txt");
+                writer = new FileWriter("data/alarmDir.txt");
                 writer.write(file.getAbsolutePath());
                 writer.close();
                 alarmDirFile = file;
                 System.out.println(alarmDirFile);
 
             } else {
-                writer = new FileWriter("bin/data/windUpDir.txt");
+                writer = new FileWriter("data/windUpDir.txt");
                 
                 writer.write(file.getAbsolutePath());
                 writer.close();
@@ -60,8 +60,8 @@ public class PomoAudio {
     }
 
     public static void checkAudio() {
-        File alarmPath = new File("bin/data/alarmDir.txt");
-        File windUpPath = new File("bin/data/windUpDir.txt");
+        File alarmPath = new File("data/alarmDir.txt");
+        File windUpPath = new File("data/windUpDir.txt");
         Scanner scanner;
         try {
             if (!alarmPath.exists()) {
@@ -92,6 +92,13 @@ public class PomoAudio {
 
     }
 
+    public static void setDefaultAudio() {
+        File alarmPath = new File("sound/alarm.wav");
+        File windUpPath = new File("sound/windup.wav");
+        saveAudio(alarmPath, true);
+        saveAudio(windUpPath, false);
+    }
+
     public static File getAlarmDirFile() {
         return alarmDirFile;
     }
@@ -99,6 +106,7 @@ public class PomoAudio {
     public static File getWindUpDirFile() {
         return windUpDirFile;
     }
+
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

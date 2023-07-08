@@ -30,6 +30,9 @@ public class PomoSettingsDialog {
     private JTabbedPane tabbedPane;
     private JDialog dialog;
     private PomoPanel p;
+    private JButton saveButton, saveButton2, alarmButton, windUpButton, defaultButton;
+    private JTextField timerField, shortBreakField, longBreakField, alarmText, windUpText;
+    private JPanel timerPanel, changeTime, changeBreak, changeLongBreak;
 
     public PomoSettingsDialog(PomoPanel p) {
         this.p = p;
@@ -37,6 +40,142 @@ public class PomoSettingsDialog {
         PomoSettingsDialogDesign();
     }
 
+
+
+    public void registerSaveButton()
+    {
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) 
+            {
+                long timerValue = Long.valueOf(timerField.getText());
+                long shortBreakValue = Long.valueOf(shortBreakField.getText());
+                long longBreakValue = Long.valueOf(longBreakField.getText());
+                if(timerField.getText().length() == 0 || shortBreakField.getText().length() == 0 || longBreakField.getText().length() == 0)
+                {
+                    System.out.println("empty");
+                    return;
+                }
+                else if (timerField.getText().matches("[a-zA-Z]+") || shortBreakField.getText().matches("[a-zA-Z]+") || longBreakField.getText().matches("[a-zA-Z]+"))
+                {
+                    System.out.println("contains letters");
+                    return;
+                }
+                else if((timerValue < 1 || timerValue > 1440) || (shortBreakValue < 1 || shortBreakValue > 1440) || (longBreakValue < 1 || longBreakValue > 1440))
+                {
+                    System.out.println("out of bounds, add within 1-1440 minutes");
+                    return;
+                } 
+
+                p.setPomoTime(convertToMs(Long.valueOf(timerField.getText())));
+                p.setShortBreakTime(convertToMs(Long.valueOf(shortBreakField.getText())));
+                p.setLongBreakTime(convertToMs(Long.valueOf(longBreakField.getText())));
+                
+                //while the timer isnt running, updates the time when changed in settings
+                p.updateTimeTrack();
+
+                try (FileWriter writer = new FileWriter("sdata/pomoTime.txt")) {
+                    writer.write(String.valueOf(convertToMs(timerValue)));
+                    writer.write("\n" + String.valueOf(convertToMs(shortBreakValue)));
+                    writer.write("\n" + String.valueOf(convertToMs(longBreakValue)));
+                    writer.close();
+                } 
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                dialog.dispose();
+                System.out.println("saved");
+            }
+        });
+    }
+
+    //save button for soundpanel
+    public void registerSaveButton2()
+    {
+        saveButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == saveButton2) {
+                    PomoAudio.checkAudio();
+                    dialog.dispose();
+                    System.out.println("saved2");
+                }
+            }
+        });
+    }
+    //reverrt to default sounds in soundpanel
+    public void registerDefaultButton()
+    {
+        defaultButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == defaultButton) {
+                    PomoAudio.setDefaultAudio();
+                    alarmText.setText("Default");
+                    windUpText.setText("Default");
+
+                }
+            }
+        });
+    }
+
+    //creates the timer panel and all of the other nested jpanels
+    public JPanel createMainPanel() 
+    {
+        JPanel timerPanel = new JPanel();
+        timerPanel.setLayout(new BorderLayout());
+        timerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        return timerPanel;
+    }
+
+    public JPanel createPanel() {
+
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        return panel;
+    }
+
+    //actionListener for selecting the alarm file
+    public void registerAlarmButton()
+    {
+        //actionlisteners for alarmPanel
+        alarmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == alarmButton) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int response = fileChooser.showOpenDialog(null); 
+
+                    if(response == JFileChooser.APPROVE_OPTION) {
+                        
+                        PomoAudio.saveAudio(new File(fileChooser.getSelectedFile().getAbsolutePath()), true);
+                        alarmText.setText(PomoAudio.getAlarmDirFile().getName());
+                    }
+                }
+            }
+        });   
+    }
+
+    public void registerWindUpButton()
+    {
+        windUpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == windUpButton) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int response = fileChooser.showOpenDialog(null); 
+
+                    if(response == JFileChooser.APPROVE_OPTION) {
+                        PomoAudio.saveAudio(new File(fileChooser.getSelectedFile().getAbsolutePath()), false);
+                        windUpText.setText(PomoAudio.getWindUpDirFile().getName());
+                    }
+                }
+            }
+        });
+    }
+
+
+    //initializes the settings dialog
     public void PomoSettingsDialogDesign() {
         // Creating the frame and jdialog box
         dialog = new JDialog(dialog, "Settings", true);
@@ -46,23 +185,21 @@ public class PomoSettingsDialog {
         tabbedPane = new JTabbedPane();
 
         // JPanel
-        JPanel timerPanel = new JPanel();
-        timerPanel.setLayout(new BorderLayout());
-        timerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        timerPanel = createMainPanel();
+        changeTime = createPanel();
+        changeBreak = createPanel();
+        changeLongBreak = createPanel();
 
         // setting up the timer panel
-        JTextField timerField = new JTextField();
-        JTextField shortBreakField = new JTextField();
-        JTextField longBreakField = new JTextField();
+        timerField = new JTextField();
+        shortBreakField = new JTextField();
+        longBreakField = new JTextField();
 
         timerField.setColumns(4);
         shortBreakField.setColumns(4);
         longBreakField.setColumns(4);
 
-        JPanel changeTime = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JPanel changeBreak = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JPanel changeLongBreak = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
+    
         JLabel pomodoroLabel = new JLabel("Pomodoro");
         JLabel shortBreakLabel = new JLabel("Short Break");
         JLabel longBreakLabel = new JLabel("Long Break");
@@ -70,7 +207,7 @@ public class PomoSettingsDialog {
         JLabel shortMinutesLabel = new JLabel(" minutes");
         JLabel longMinutesLabel = new JLabel(" minutes");
 
-        JButton saveButton = new JButton("Save");
+        saveButton = new JButton("Save");
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -108,59 +245,27 @@ public class PomoSettingsDialog {
         timerPanel.add(northPanel, BorderLayout.NORTH);
         timerPanel.add(saveButton, BorderLayout.SOUTH);
 
-        /*
-         * timerPanel.add(changeTime, BorderLayout.NORTH);
-         * timerPanel.add(changeBreak, BorderLayout.CENTER);
-         * timerPanel.add(changeLongBreak, BorderLayout.SOUTH);
-         * timerPanel.add(saveButton, BorderLayout.SOUTH);
-         */
-        /*
-         * timerPanel.add(shortBreakField);
-         * timerPanel.add(longBreakField);
-         */
-
         // initializing the text fields
         timerField.setText(String.valueOf((convertToMin(p.getPomoTime()))));
         shortBreakField.setText(String.valueOf(convertToMin(p.getShortBreakTime())));
         longBreakField.setText(String.valueOf(convertToMin(p.getLongBreakTime())));
         
         // actionListeners
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                p.setPomoTime(convertToMs(Long.valueOf(timerField.getText())));
-                p.setShortBreakTime(convertToMs(Long.valueOf(shortBreakField.getText())));
-                p.setLongBreakTime(convertToMs(Long.valueOf(longBreakField.getText())));
-                
-                //while the timer isnt running, updates the time when changed in settings
-                p.updateTimeTrack();
-
-                try (FileWriter writer = new FileWriter("bin/data/pomoTime.txt")) {
-                    writer.write(String.valueOf(convertToMs(Long.valueOf(timerField.getText()))));
-                    writer.write("\n" + String.valueOf(convertToMs(Long.valueOf(shortBreakField.getText()))));
-                    writer.write("\n" + String.valueOf(convertToMs(Long.valueOf(longBreakField.getText()))));
-                    writer.close();
-                } 
-                catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                dialog.dispose();
-                System.out.println("saved");
-            }
-        });
+        registerSaveButton();
 
 
         //setting up the soundPanel
-        JPanel soundPanel = new JPanel();
+        JPanel soundPanel = createMainPanel();
 
         JPanel alarmPanel = new JPanel(new BorderLayout());
         JPanel windUpPanel = new JPanel(new BorderLayout());
 
-        JPanel alarmNorthPanel = new JPanel();
-        JPanel alarmCenterPanel = new JPanel();
-        JPanel alarmSouthPanel = new JPanel();
+        JPanel alarmNorthPanel = createMainPanel();
+        JPanel alarmCenterPanel = createMainPanel();
+        JPanel alarmSouthPanel = createMainPanel();
 
-        JButton saveButton2 = new JButton("Save");
+        saveButton2 = new JButton("Save");
+        defaultButton = new JButton("Default");
 
         alarmNorthPanel.setLayout(new BoxLayout(alarmNorthPanel, BoxLayout.X_AXIS));
         alarmCenterPanel.setLayout(new BoxLayout(alarmCenterPanel, BoxLayout.X_AXIS));
@@ -168,8 +273,8 @@ public class PomoSettingsDialog {
         
         JLabel alarmLabel = new JLabel("Alarm");
 
-        JTextField alarmText = new JTextField(PomoAudio.getAlarmDirFile().getName());
-        JTextField windUpText = new JTextField(PomoAudio.getWindUpDirFile().getName());
+        alarmText = new JTextField(PomoAudio.getAlarmDirFile().getName());
+        windUpText = new JTextField(PomoAudio.getWindUpDirFile().getName());
         
         //checks if it is using the default audio files
         if(alarmText.getText().equals("alarm.wav")) {
@@ -182,7 +287,7 @@ public class PomoSettingsDialog {
         alarmText.setEnabled(false);
         alarmText.setColumns(9);
 
-        JButton alarmButton = new JButton("Choose File");
+        alarmButton = new JButton("Choose File");
         alarmButton.setPreferredSize(new Dimension(50,10));
 
         alarmNorthPanel.add(alarmLabel, BorderLayout.WEST);
@@ -191,7 +296,7 @@ public class PomoSettingsDialog {
 
         JLabel windUpLabel = new JLabel("Wind ");
         
-        JButton windUpButton = new JButton("Choose File");
+        windUpButton = new JButton("Choose File");
 
         windUpText.setEnabled(false);
         windUpText.setColumns(9);
@@ -200,58 +305,30 @@ public class PomoSettingsDialog {
         alarmCenterPanel.add(windUpText, BorderLayout.CENTER);
         alarmCenterPanel.add(windUpButton, BorderLayout.EAST);
 
+        alarmSouthPanel.add(defaultButton, BorderLayout.NORTH);
+        alarmSouthPanel.add(saveButton2, BorderLayout.SOUTH);
+
 
         alarmPanel.add(alarmNorthPanel, BorderLayout.NORTH);
         alarmPanel.add(alarmCenterPanel, BorderLayout.CENTER);
-        alarmPanel.add(saveButton2, BorderLayout.SOUTH);
+        alarmPanel.add(alarmSouthPanel, BorderLayout.SOUTH);
         alarmPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
 
 
         soundPanel.add(alarmPanel, BorderLayout.NORTH);
 
-        //actionlisteners for alarmPanel
-        alarmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == alarmButton) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int response = fileChooser.showOpenDialog(null); 
+        //actionlisteners for alarmButton
+        registerAlarmButton();
 
-                    if(response == JFileChooser.APPROVE_OPTION) {
-                        
-                        PomoAudio.saveAudio(new File(fileChooser.getSelectedFile().getAbsolutePath()), true);
-                        alarmText.setText(PomoAudio.getAlarmDirFile().getName());
-                    }
-                }
-            }
-        });
+        //actionlisteners for windUpButton
+        registerWindUpButton();
 
-        windUpButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == windUpButton) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int response = fileChooser.showOpenDialog(null); 
+        //actionlisteners for saveButton2
+        registerSaveButton2();
 
-                    if(response == JFileChooser.APPROVE_OPTION) {
-                        PomoAudio.saveAudio(new File(fileChooser.getSelectedFile().getAbsolutePath()), false);
-                        windUpText.setText(PomoAudio.getWindUpDirFile().getName());
-                    }
-                }
-            }
-        });
-
-        saveButton2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == saveButton2) {
-                    PomoAudio.checkAudio();
-                    dialog.dispose();
-                    System.out.println("saved2");
-                }
-            }
-        });
+        //actionListener for default button
+        registerDefaultButton();
 
 
 

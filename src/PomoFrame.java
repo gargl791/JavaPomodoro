@@ -4,6 +4,7 @@ import java.awt.GradientPaint;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -26,6 +27,9 @@ public class PomoFrame {
 
     public void PomoDesign(){
         pomoFrame = new JFrame();
+
+        pomoFrame.setIconImage(new ImageIcon("images/pomo.png").getImage());
+
         JPanel contentPane = new JPanel();
         contentPane.setBackground(new Color(251, 246, 239));
         pomoFrame.setContentPane(contentPane);
